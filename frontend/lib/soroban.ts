@@ -38,6 +38,12 @@ function mapSorobanError(error: any): Error {
   if (msg.includes('UnauthorizedPolicy')) return new UnauthorizedPolicyError();
   if (msg.includes('insufficient') || msg.includes('tx_insufficient_balance')) return new InsufficientBalanceError();
   if (msg.includes('network') || msg.includes('fetch')) return new NetworkError(msg);
+  
+  // Catch raw VM traps from Soroban standard panics
+  if (msg.includes('Error(WasmVm, InvalidAction)') || msg.includes('UnreachableCodeReached')) {
+    return new Error('Smart Contract Error: Transaction reverted. Ensure the Time Lock has expired and you are Authorized.');
+  }
+
   return error instanceof Error ? error : new Error(msg);
 }
 
