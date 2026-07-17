@@ -9,7 +9,7 @@ import {
   XCircle, Loader2, Clock, Shield, AlertTriangle, Zap 
 } from 'lucide-react';
 import {
-  escrowDeposit, escrowWithdraw, subscribeToEscrowEvents,
+  escrowDeposit, escrowWithdraw, subscribeToEscrowEvents, policyAuthorize,
   ESCROW_CONTRACT_ID, POLICY_CONTRACT_ID,
   TimeLockError, UserRejectedError, UnauthorizedPolicyError, InsufficientBalanceError
 } from '@/lib/soroban';
@@ -39,6 +39,10 @@ export default function VaultPage() {
   // Withdraw state
   const [withdrawStatus, setWithdrawStatus] = useState<TxStatus>('idle');
   const [withdrawHash, setWithdrawHash] = useState('');
+
+  // Auth state
+  const [authStatus, setAuthStatus] = useState<TxStatus>('idle');
+  const [authHash, setAuthHash] = useState('');
 
   // Live events
   const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
@@ -115,6 +119,25 @@ export default function VaultPage() {
     }
   }, [publicKey, refreshBalance]);
 
+  const handleAuthorize = useCallback(async () => {
+    if (!publicKey) { toast.error('Please connect your wallet first.'); return; }
+
+    setAuthStatus('pending');
+    setAuthHash('');
+    toast.loading('Authorizing wallet...', { id: 'auth' });
+
+    try {
+      const hash = await policyAuthorize(publicKey, publicKey);
+      setAuthStatus('success');
+      setAuthHash(hash);
+      toast.success('Wallet officially authorized by Policy!', { id: 'auth' });
+    } catch (error: any) {
+      setAuthStatus('failed');
+      if (error instanceof UserRejectedError) toast.error(error.message, { id: 'auth' });
+      else toast.error(error.message || 'Authorization failed', { id: 'auth' });
+    }
+  }, [publicKey]);
+
   return (
     <div className="flex-1 p-6 lg:p-12 w-full max-w-7xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
       
@@ -143,6 +166,26 @@ export default function VaultPage() {
             </a>
           </div>
         ))}
+      </div>
+
+      {/* Admin Override */}
+      <div className="glass rounded-xl p-4 border border-green-500/20 flex flex-col sm:flex-row items-center justify-between gap-4 bg-green-500/5">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-green-500/20">
+            <Shield size={16} className="text-green-400" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-foreground">Admin Override</p>
+            <p className="text-xs text-muted-foreground">Authorize your wallet in the Policy Contract to allow withdrawals.</p>
+          </div>
+        </div>
+        <button
+          onClick={handleAuthorize}
+          disabled={authStatus === 'pending' || !publicKey}
+          className="px-4 py-2 bg-green-500 text-white text-sm font-bold rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
+        >
+          {authStatus === 'pending' ? <Loader2 size={14} className="animate-spin" /> : 'Authorize Me'}
+        </button>
       </div>
 
       {/* Main Grid */}

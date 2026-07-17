@@ -164,6 +164,28 @@ export async function escrowWithdraw(
 }
 
 // ==========================================
+// Policy: Authorize (Admin Override)
+// ==========================================
+export async function policyAuthorize(
+  adminPublicKey: string,
+  userToAuthorize: string,
+): Promise<string> {
+  try {
+    const operation = StellarSdk.Operation.invokeContractFunction({
+      contract: POLICY_CONTRACT_ID,
+      function: 'authorize',
+      args: [
+        StellarSdk.nativeToScVal(userToAuthorize, { type: 'address' }),
+      ],
+    });
+
+    return await buildAndSend(adminPublicKey, operation);
+  } catch (error) {
+    throw mapSorobanError(error);
+  }
+}
+
+// ==========================================
 // SSE: Subscribe to escrow contract events
 // ==========================================
 export function subscribeToEscrowEvents(
