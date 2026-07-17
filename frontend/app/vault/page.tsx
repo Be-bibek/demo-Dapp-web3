@@ -47,9 +47,10 @@ export default function VaultPage() {
   // Live events
   const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
 
-  // Subscribe to blockchain events via SSE
+  // Subscribe to blockchain events via polling
   useEffect(() => {
-    const unsub = subscribeToEscrowEvents((event) => {
+    if (!publicKey) return;
+    const unsub = subscribeToEscrowEvents(publicKey, (event) => {
       setLiveEvents(prev => [{
         id: event.hash,
         type: event.type,
@@ -58,7 +59,7 @@ export default function VaultPage() {
       }, ...prev].slice(0, 8));
     });
     return unsub;
-  }, []);
+  }, [publicKey]);
 
   const handleDeposit = useCallback(async () => {
     if (!publicKey) { toast.error('Please connect your wallet first.'); return; }

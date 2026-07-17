@@ -186,18 +186,19 @@ export async function policyAuthorize(
 }
 
 // ==========================================
-// Polling: Subscribe to escrow contract events
+// Polling: Subscribe to contract events via User Account
 // ==========================================
 export function subscribeToEscrowEvents(
+  publicKey: string,
   onEvent: (event: { type: string; amount?: string; user?: string; hash: string }) => void
 ): () => void {
   let isSubscribed = true;
   const seenHashes = new Set<string>();
 
   const poll = async () => {
-    if (!isSubscribed) return;
+    if (!isSubscribed || !publicKey) return;
     try {
-      const response = await fetch(`https://horizon-testnet.stellar.org/accounts/${ESCROW_CONTRACT_ID}/transactions?order=desc&limit=5`);
+      const response = await fetch(`https://horizon-testnet.stellar.org/accounts/${publicKey}/transactions?order=desc&limit=5`);
       const data = await response.json();
       
       if (data && data._embedded && data._embedded.records) {
