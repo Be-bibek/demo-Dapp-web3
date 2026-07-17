@@ -168,26 +168,6 @@ export default function VaultPage() {
         ))}
       </div>
 
-      {/* Admin Override */}
-      <div className="glass rounded-xl p-4 border border-green-500/20 flex flex-col sm:flex-row items-center justify-between gap-4 bg-green-500/5">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-green-500/20">
-            <Shield size={16} className="text-green-400" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-foreground">Admin Override</p>
-            <p className="text-xs text-muted-foreground">Authorize your wallet in the Policy Contract to allow withdrawals.</p>
-          </div>
-        </div>
-        <button
-          onClick={handleAuthorize}
-          disabled={authStatus === 'pending' || !publicKey}
-          className="px-4 py-2 bg-green-500 text-white text-sm font-bold rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
-        >
-          {authStatus === 'pending' ? <Loader2 size={14} className="animate-spin" /> : 'Authorize Me'}
-        </button>
-      </div>
-
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
