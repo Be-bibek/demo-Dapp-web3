@@ -31,7 +31,8 @@ export default function VaultPage() {
 
   // Deposit state
   const [depositAmount, setDepositAmount] = useState('');
-  const [lockMinutes, setLockMinutes] = useState('5');
+  const [lockValue, setLockValue] = useState('5');
+  const [lockUnit, setLockUnit] = useState('minutes');
   const [depositStatus, setDepositStatus] = useState<TxStatus>('idle');
   const [depositHash, setDepositHash] = useState('');
 
@@ -64,11 +65,17 @@ export default function VaultPage() {
     toast.loading('Awaiting signature...', { id: 'deposit' });
 
     try {
+      let multiplier = 60;
+      if (lockUnit === 'hours') multiplier = 3600;
+      if (lockUnit === 'days') multiplier = 86400;
+      if (lockUnit === 'years') multiplier = 31536000;
+      const totalSeconds = Math.max(60, parseInt(lockValue || '1') * multiplier);
+
       const hash = await escrowDeposit(
         publicKey,
         XLM_CONTRACT,
         depositAmount,
-        parseInt(lockMinutes) * 60,
+        totalSeconds,
       );
       setDepositStatus('success');
       setDepositHash(hash);
@@ -173,25 +180,30 @@ export default function VaultPage() {
               </div>
 
               <div className="p-4 bg-background/60 backdrop-blur-md rounded-2xl border border-white/10 space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2"><Clock size={12} />Lock Duration (minutes)</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2"><Clock size={12} />Lock Duration</label>
                 <div className="flex gap-2 flex-wrap">
-                  {['5', '15', '60', '1440'].map(m => (
-                    <button
-                      key={m}
-                      onClick={() => setLockMinutes(m)}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all ${lockMinutes === m ? 'bg-primary text-white shadow-md' : 'bg-secondary text-secondary-foreground hover:bg-secondary/70'}`}
-                    >
-                      {m === '1440' ? '1 day' : `${m}m`}
-                    </button>
-                  ))}
                   <input
                     type="number"
-                    placeholder="custom"
-                    value={!['5','15','60','1440'].includes(lockMinutes) ? lockMinutes : ''}
-                    onChange={e => setLockMinutes(e.target.value)}
-                    className="w-20 px-3 py-1.5 bg-secondary rounded-lg text-sm font-bold outline-none focus:ring-2 ring-primary/50 text-foreground placeholder:text-muted-foreground/50"
+                    min="1"
+                    placeholder="Duration"
+                    value={lockValue}
+                    onChange={e => setLockValue(e.target.value)}
+                    className="w-24 px-3 py-1.5 bg-secondary rounded-lg text-sm font-bold outline-none focus:ring-2 ring-primary/50 text-foreground placeholder:text-muted-foreground/50"
                   />
+                  <select
+                    value={lockUnit}
+                    onChange={e => setLockUnit(e.target.value)}
+                    className="px-3 py-1.5 bg-secondary rounded-lg text-sm font-bold outline-none focus:ring-2 ring-primary/50 text-foreground appearance-none"
+                  >
+                    <option value="minutes">Minutes</option>
+                    <option value="hours">Hours</option>
+                    <option value="days">Days</option>
+                    <option value="years">Years</option>
+                  </select>
                 </div>
+                <p className="text-xs text-muted-foreground pt-1">
+                  * Minimum lock duration is 1 minute.
+                </p>
               </div>
             </div>
 
