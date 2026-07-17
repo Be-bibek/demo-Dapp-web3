@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
@@ -11,6 +12,11 @@ export function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const { publicKey, connect, disconnect } = useWalletStore();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const links = [
     { href: "/", icon: Home, label: "Home" },
@@ -62,7 +68,11 @@ export function Navbar() {
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className="p-2 text-muted-foreground hover:text-foreground transition-colors"
           >
-            {theme === 'dark' ? <Sun className="w-5 h-5 md:w-6 md:h-6" /> : <Moon className="w-5 h-5 md:w-6 md:h-6" />}
+            {mounted ? (
+              theme === 'dark' ? <Sun className="w-5 h-5 md:w-6 md:h-6" /> : <Moon className="w-5 h-5 md:w-6 md:h-6" />
+            ) : (
+              <div className="w-5 h-5 md:w-6 md:h-6" />
+            )}
           </motion.button>
 
           {/* Wallet Connect */}
