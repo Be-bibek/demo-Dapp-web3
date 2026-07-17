@@ -51,12 +51,15 @@ export default function VaultPage() {
   useEffect(() => {
     if (!publicKey) return;
     const unsub = subscribeToEscrowEvents(publicKey, (event) => {
-      setLiveEvents(prev => [{
-        id: event.hash,
-        type: event.type,
-        hash: event.hash,
-        timestamp: new Date(),
-      }, ...prev].slice(0, 8));
+      setLiveEvents(prev => {
+        if (prev.some(e => e.hash === event.hash)) return prev;
+        return [{
+          id: event.hash,
+          type: event.type,
+          hash: event.hash,
+          timestamp: new Date(),
+        }, ...prev].slice(0, 8);
+      });
     });
     return unsub;
   }, [publicKey]);
