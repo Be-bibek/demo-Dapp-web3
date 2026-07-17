@@ -63,8 +63,23 @@ A modern, decentralized application built on the Stellar Testnet. This dApp allo
 - [x] Display robust transaction history.
 
 ## Assessment - Level 2 Completed (Smart Contract Integration)
-- [x] **Smart Contracts**: Built and deployed a **Time-Locked Escrow** and a **Policy Authenticator** contract on Soroban, including cross-contract calls.
+- [x] **Smart Contracts**: Built and deployed two interdependent contracts on Soroban:
+  - **[Time-Locked Escrow](https://stellar.expert/explorer/testnet/contract/CAISSVEWZWEGK66CWHUVV2YQHLSUXBHDZVGDIZ57BVXAP2D4T6QZAGKN)**: Locks XLM for a specified duration before withdrawal is permitted.
+  - **[Policy Authenticator](https://stellar.expert/explorer/testnet/contract/CAKXYDS7OM2GH2JY5QUHA6EA4NGT6CPLTHGVHNGMEEIHLZAPSAYLD3M5)**: Acts as a middleware layer to verify if a user's address is authorized by the system administrator to withdraw funds.
 - [x] **Error Handling**: Implemented 5 precise custom error classes in the frontend (`WalletNotInstalledError`, `UserRejectedError`, `TimeLockError`, `UnauthorizedPolicyError`, `InsufficientBalanceError`).
 - [x] **Transaction Pipeline**: Full flow including building the XDR, Soroban transaction simulation, assembling with fees, signing via Wallet Kit, submission, and a robust status polling loop.
 - [x] **Live Events (SSE)**: Set up Server-Sent Events listening to the Horizon API to provide a live, real-time feed of contract activity on the Vault page.
 - [x] **UI/UX States**: The Vault page clearly manages and displays transaction states (Pending, Successful, Failed) with animated feedback and direct links to Stellar Expert.
+
+### Architecture Diagram
+
+The frontend interacts with the Soroban smart contracts. When a withdrawal is requested, the Escrow contract makes a **cross-contract call** to the Policy Authenticator to ensure the user has been authorized before releasing the funds.
+
+```mermaid
+graph TD;
+    A[Frontend React App] -->|Deposit/Withdraw| B[Escrow Contract]
+    B -->|Check Authorization| C[Policy Authenticator Contract]
+    C -->|Returns Boolean| B
+    B -->|Time Lock Passed & Authorized| D[Transfer XLM to User]
+    B -.->|Failed Check| E[Transaction Reverted]
+```
