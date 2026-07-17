@@ -186,27 +186,47 @@ export async function policyAuthorize(
 }
 
 // ==========================================
-// SSE: Subscribe to escrow contract events
+// Polling: Subscribe to escrow contract events
 // ==========================================
 export function subscribeToEscrowEvents(
   onEvent: (event: { type: string; amount?: string; user?: string; hash: string }) => void
 ): () => void {
-  const url = `https://horizon-testnet.stellar.org/accounts/${ESCROW_CONTRACT_ID}/transactions?cursor=now&order=asc`;
-  const es = new EventSource(url);
+  let isSubscribed = true;
+  const seenHashes = new Set<string>();
 
-  es.onmessage = (ev) => {
+  const poll = async () => {
+    if (!isSubscribed) return;
     try {
-      const data = JSON.parse(ev.data);
-      if (data.hash) {
-        onEvent({
-          type: 'Contract Activity',
-          hash: data.hash,
+      const response = await fetch(`https://horizon-testnet.stellar.org/accounts/${ESCROW_CONTRACT_ID}/transactions?order=desc&limit=5`);
+      const data = await response.json();
+      
+      if (data && data._embedded && data._embedded.records) {
+        // Process in reverse to get oldest first among the latest 5
+        const records = [...data._embedded.records].reverse();
+        
+        records.forEach((record: any) => {
+          if (!seenHashes.has(record.hash)) {
+            seenHashes.add(record.hash);
+            onEvent({
+              type: 'Smart Contract Call',
+              hash: record.hash,
+            });
+          }
         });
       }
-    } catch {}
+    } catch (e) {
+      console.error("Polling error:", e);
+    }
+
+    if (isSubscribed) {
+      setTimeout(poll, 3000);
+    }
   };
 
-  es.onerror = () => {};
+  // Start polling
+  poll();
 
-  return () => es.close();
+  return () => {
+    isSubscribed = false;
+  };
 }
