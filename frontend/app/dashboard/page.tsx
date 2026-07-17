@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWalletStore } from '@/store/walletStore';
 import Link from 'next/link';
 import { fundWithFriendbot } from '@/lib/stellar';
@@ -10,6 +10,11 @@ import { Loader2, ExternalLink, CheckCircle2, XCircle } from 'lucide-react';
 export default function DashboardPage() {
   const { publicKey, balance, transactions, refreshBalance } = useWalletStore();
   const [isFunding, setIsFunding] = useState(false);
+
+  // Auto-refresh history when navigating to Dashboard
+  useEffect(() => {
+    if (publicKey) refreshBalance();
+  }, [publicKey, refreshBalance]);
 
   const handleFund = async () => {
     if (!publicKey) return;
