@@ -90,7 +90,7 @@ export default function VaultPage() {
       else if (error instanceof InsufficientBalanceError) toast.error(error.message, { id: 'deposit' });
       else toast.error(error.message || 'Transaction failed', { id: 'deposit' });
     }
-  }, [publicKey, depositAmount, lockMinutes, refreshBalance]);
+  }, [publicKey, depositAmount, lockValue, lockUnit, refreshBalance]);
 
   const handleWithdraw = useCallback(async () => {
     if (!publicKey) { toast.error('Please connect your wallet first.'); return; }
