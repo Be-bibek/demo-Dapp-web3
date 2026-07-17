@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
-import { Home, LayoutDashboard, Send, ArrowRightLeft, Moon, Sun, Wallet } from "lucide-react";
+import { Home, LayoutDashboard, Send, Moon, Sun, Wallet, Vault } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useWalletStore } from "@/store/walletStore";
 
@@ -16,6 +16,7 @@ export function Navbar() {
     { href: "/", icon: Home, label: "Home" },
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/transfer", icon: Send, label: "Transfer" },
+    { href: "/vault", icon: Vault, label: "Vault" },
   ];
 
   return (

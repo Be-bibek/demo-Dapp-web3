@@ -61,3 +61,10 @@ A modern, decentralized application built on the Stellar Testnet. This dApp allo
 - [x] Build simple payment interface.
 - [x] Integrate Friendbot faucet for testnet funds.
 - [x] Display robust transaction history.
+
+## Assessment - Level 2 Completed (Smart Contract Integration)
+- [x] **Smart Contracts**: Built and deployed a **Time-Locked Escrow** and a **Policy Authenticator** contract on Soroban, including cross-contract calls.
+- [x] **Error Handling**: Implemented 5 precise custom error classes in the frontend (`WalletNotInstalledError`, `UserRejectedError`, `TimeLockError`, `UnauthorizedPolicyError`, `InsufficientBalanceError`).
+- [x] **Transaction Pipeline**: Full flow including building the XDR, Soroban transaction simulation, assembling with fees, signing via Wallet Kit, submission, and a robust status polling loop.
+- [x] **Live Events (SSE)**: Set up Server-Sent Events listening to the Horizon API to provide a live, real-time feed of contract activity on the Vault page.
+- [x] **UI/UX States**: The Vault page clearly manages and displays transaction states (Pending, Successful, Failed) with animated feedback and direct links to Stellar Expert.

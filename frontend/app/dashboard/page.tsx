@@ -54,6 +54,9 @@ export default function DashboardPage() {
             <Link href="/transfer" className="flex-1 px-6 py-4 bg-gradient-to-r from-primary to-blue-600 text-white font-bold rounded-xl hover:scale-[1.02] transition-transform shadow-lg shadow-primary/30 text-center">
               Send Funds
             </Link>
+            <Link href="/vault" className="flex-1 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-bold rounded-xl hover:scale-[1.02] transition-transform shadow-lg shadow-green-500/30 text-center">
+              Escrow Vault
+            </Link>
           </div>
         </div>
       </div>
